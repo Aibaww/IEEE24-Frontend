@@ -1,26 +1,69 @@
 import React from 'react';
-import logo from '../../assets/img/logo.svg';
-import Greetings from '../../containers/Greetings/Greetings';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
 import './Popup.css';
 
 const Popup = () => {
+  const handleSingleTab = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      console.log(tabs);
+      chrome.storage.local.get('tabs', (result) => {
+        var arr = {};
+        if (
+          result !== undefined &&
+          result.tabs !== undefined &&
+          result.tabs.tabs !== undefined
+        ) {
+          arr = {
+            tabs: [
+              ...result.tabs.tabs,
+              {
+                url: tabs[0].url,
+                title: tabs[0].title,
+                favicon: tabs[0].favIconUrl,
+              },
+            ],
+          };
+        } else {
+          arr = {
+            tabs: [
+              {
+                url: tabs[0].url,
+                title: tabs[0].title,
+                favicon: tabs[0].favIconUrl,
+              },
+            ],
+          };
+        }
+        chrome.storage.local.set({ tabs: arr }, () => {
+          chrome.tabs.remove(tabs[0].id);
+        });
+      });
+    });
+  };
+  const handleAllTab = () => {
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
+      console.log(tabs);
+    });
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/pages/Popup/Popup.jsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React!
-        </a>
-      </header>
-    </div>
+    <Box className="App">
+      <Box className="App-header">
+        <Grid container>
+          <Grid item xs={12}>
+            <Button variant="outlined" onClick={handleSingleTab}>
+              Store this tab
+            </Button>
+          </Grid>
+          {/* <Grid item xs={12}>
+            <Button variant="outlined" onClick={handleAllTab}>
+              Store all tabs
+            </Button>
+          </Grid> */}
+        </Grid>
+      </Box>
+    </Box>
   );
 };
 
