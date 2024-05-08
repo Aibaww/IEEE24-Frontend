@@ -44,11 +44,11 @@ npm install
 ## Built With
 
 * [React](https://react.dev/)
+* [MUI](https://mui.com/)
 
 ## Authors
 
-* **Michael Xieyang Liu** - *Template* - [lxieyang](https://github.com/lxieyang)
-* **Aiba** - *Everything Else* [Aibaww](https://github.com/Aibaww)
+See the list of [contributors](https://github.com/Aibaww/IEEE24-Frontend/graphs/contributors).
 
 ## License
 
@@ -56,7 +56,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* Thanks [kymotsujason](https://github.com/kymotsujason) for react/js help!
 
