@@ -1,0 +1,16 @@
+.user-welcome-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 90px;
+}
+
+.user-welcome {
+    flex: 1;
+    font-size: 40px;
+}
+
+.quote {
+    flex: 1;
+    font-size: 25px;
+}

@@ -1,10 +1,13 @@
-import DropdownMenu from './Components/dropdown-menu';
+import Menu from './Components/dropdown-menu';
+import Greeting from './Components/greeting';
 import TabList from './Components/tab-list';
+import Task from './Components/task';
 import React from 'react';
 import { DateTime } from 'luxon';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Divider from '@mui/material/Divider';
 import './Newtab.css';
 import './Newtab.scss';
 const Quote = require('inspirational-quotes');
@@ -14,9 +17,13 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       clock: DateTime.now(),
+      focused: false,
       wallpaper: '',
       quote: '',
       tabs: [],
+      tasks: [],
+      name: 'Aiba',
+      dayPhase: '',
     };
   }
 
@@ -28,6 +35,15 @@ export default class App extends React.Component {
         result.tabs.tabs !== undefined
       ) {
         this.setState({ tabs: result.tabs.tabs });
+      }
+    });
+    chrome.storage.local.get('tasks', (result) => {
+      if (
+        result !== undefined &&
+        result.tasks !== undefined &&
+        result.tasks.tasks !== undefined
+      ) {
+        this.setState({ tasks: result.tasks.tasks });
       }
     });
     this.timerID = setInterval(() => this.tick(), 1000);
@@ -67,6 +83,15 @@ export default class App extends React.Component {
         this.setState({ tabs: result.tabs.tabs });
       }
     });
+    chrome.storage.local.get('tasks', (result) => {
+      if (
+        result !== undefined &&
+        result.tasks !== undefined &&
+        result.tasks.tasks !== undefined
+      ) {
+        this.setState({ tasks: result.tasks.tasks });
+      }
+    });
   }
 
   getDayPhase() {
@@ -91,6 +116,16 @@ export default class App extends React.Component {
     chrome.storage.local.set({ tabs: { tabs: tabs } });
   };
 
+  updateTasks = (tasks) => {
+    this.setState({ tasks: tasks });
+    chrome.storage.local.set({ tasks: { tasks: tasks } });
+  };
+
+  updateFocused = () => {
+    this.setState({ focused: !this.state.focused });
+    chrome.storage.local.set({ focused: this.state.focused });
+  };
+
   render() {
     return (
       <div
@@ -98,7 +133,9 @@ export default class App extends React.Component {
         style={{ backgroundImage: `url(${this.state.wallpaper})` }}
       >
         <header className="App-header">
-          <DropdownMenu />
+          <Box className="menu-bar">
+            <Menu updateFocused={this.updateFocused} />
+          </Box>
           <Box>
             <Grid container justifyContent="center">
               <Grid item xs={12}>
@@ -107,23 +144,28 @@ export default class App extends React.Component {
                 </Box>
               </Grid>
               <Grid item xs={12}>
-                <Box className="user-welcome">
-                  Good {this.state.dayPhase}, Aiba.
-                </Box>
-              </Grid>
-              <Grid item xs={12}>
-                <Box className="quote">{this.state.quote}</Box>
+                <Greeting
+                  focused={this.state.focused}
+                  name={this.state.name}
+                  dayPhase={this.state.dayPhase}
+                  quote={this.state.quote}
+                />
               </Grid>
             </Grid>
           </Box>
         </header>
         <Grid container spacing={2} justifyContent={'center'} padding={5}>
           <Grid item xs={4}>
-            <Box className="box">Tasks</Box>
+            <Box className="box">
+              <Box height="30px"> Tasks </Box>
+              <Divider color="gray" />
+              <Task tasks={this.state.tasks} updateTasks={this.updateTasks} />
+            </Box>
           </Grid>
           <Grid item xs={4}>
             <Box className="box">
-              Tabs
+              <Box height="30px"> Tabs </Box>
+              <Divider color="gray" />
               <TabList tabs={this.state.tabs} updateTabs={this.updateTabs} />
             </Box>
           </Grid>
@@ -132,26 +174,3 @@ export default class App extends React.Component {
     );
   }
 }
-
-// function getQuote() {
-//     const q = Quote.getQuote({author: false});
-//     return q.text;
-// }
-
-// const Newtab = () => {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <DropdownMenu />
-//         <h1>
-//           Good afternoon, Aiba.
-//         </h1>
-//         <p>
-//           {getQuote()}
-//         </p>
-//       </header>
-//     </div>
-//   );
-// };
-
-// export default Newtab;

@@ -31,10 +31,16 @@
   padding: 10px;
 }
 
+.menu-bar {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex;
+  justify-content: space-between;
+  width: 99%;
+  height: 130px;
+}
+
 .clock {
   font-size: 90px;
 }
 
-.user-welcome {
-  font-size: 40px;
-}
