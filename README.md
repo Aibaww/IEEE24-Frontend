@@ -57,4 +57,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * Thanks [kymotsujason](https://github.com/kymotsujason) for react/js help!
+* Thanks Bean for being the cutest good boy while I solo this in 4 days :3
 

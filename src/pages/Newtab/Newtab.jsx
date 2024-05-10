@@ -1,7 +1,9 @@
 import Menu from './Components/dropdown-menu';
 import Greeting from './Components/greeting';
 import TabList from './Components/tab-list';
-import Task from './Components/task';
+import Task from './Components/tasks/task';
+import CanvasButton from './Components/canvas/canvas-button';
+
 import React from 'react';
 import { DateTime } from 'luxon';
 import axios from 'axios';
@@ -24,6 +26,10 @@ export default class App extends React.Component {
       tasks: [],
       name: 'Aiba',
       dayPhase: '',
+      canvas: false,
+      canvasCalendarData: [],
+      courses: [],
+      canvasUserID: '',
     };
   }
 
@@ -60,10 +66,89 @@ export default class App extends React.Component {
       .catch((err) => {
         this.setState({ wallpaper: '' });
       });
+    this.canvasAPICall();
   }
 
   componentWillUnmount() {
     clearInterval(this.timerID);
+  }
+
+  canvasAPICall() {
+    axios.get('https://canvas.northwestern.edu/').then((res) => {
+      if (res.data.includes('Dashboard')) {
+        // get courses
+        let regex = /course_[0-9]+/g;
+        let match = res.data.match(regex);
+        let courses = [];
+        let tmpJson = {};
+        for (let i = 0; i < match.length; i++) {
+          if (tmpJson[match[i]] === undefined) {
+            tmpJson[match[i]] = true;
+          } else {
+            courses.push(match[i]);
+          }
+        }
+        //get user id
+        regex = /user_[0-9]+/g;
+        let userID = res.data.match(regex)[0];
+        this.setState({ canvas: true, courses: courses, canvasUserID: userID });
+        let calendarURL1 =
+          'https://canvas.northwestern.edu/api/v1/calendar_events?type=assignment&context_codes%5B%5D=' +
+          userID;
+        let calendarURL2 =
+          'https://canvas.northwestern.edu/api/v1/calendar_events?&context_codes%5B%5D=' +
+          userID;
+        for (let i = 0; i < courses.length; i++) {
+          calendarURL1 = calendarURL1 + '&context_codes%5B%5D=' + courses[i];
+          calendarURL2 = calendarURL2 + '&context_codes%5B%5D=' + courses[i];
+        }
+        calendarURL1 =
+          calendarURL1 +
+          '&start_date=' +
+          DateTime.now().minus({ months: 1 }).toFormat('yyyy-MM-dd') +
+          'T05%3A00%3A00.000Z&end_date=' +
+          DateTime.now().plus({ months: 1 }).toFormat('yyyy-MM-dd') +
+          'T05%3A00%3A00.000Z&per_page=100';
+        calendarURL2 =
+          calendarURL2 +
+          '&start_date=' +
+          DateTime.now().minus({ months: 1 }).toFormat('yyyy-MM-dd') +
+          'T05%3A00%3A00.000Z&end_date=' +
+          DateTime.now().plus({ months: 1 }).toFormat('yyyy-MM-dd') +
+          'T05%3A00%3A00.000Z&include%5B%5D=web_conference&include%5B%5D=series_head&include%5B%5D=series_natural_language&per_page=100';
+        axios.all([axios.get(calendarURL1), axios.get(calendarURL2)]).then(
+          axios.spread((res1, res2) => {
+            var calendarList1 = res1.data.map((item) => {
+              return {
+                id: item.id,
+                title: item.title,
+                start: DateTime.fromISO(item.start_at).toJSDate(),
+                end: DateTime.fromISO(item.end_at).toJSDate(),
+                description: item.description,
+                html_url: item.html_url,
+                context_name: item.context_name,
+                context_code: item.context_code,
+              };
+            });
+            var calendarList2 = res2.data.map((item) => {
+              return {
+                id: item.id,
+                title: item.title,
+                start: DateTime.fromISO(item.start_at).toJSDate(),
+                end: DateTime.fromISO(item.end_at).toJSDate(),
+                description: item.description,
+                html_url: item.html_url,
+                context_name: item.context_name,
+                context_code: item.context_code,
+              };
+            });
+            this.setState({
+              canvasCalendarData: [...calendarList1, ...calendarList2],
+            });
+          })
+        );
+      }
+    });
   }
 
   tick() {
@@ -133,9 +218,18 @@ export default class App extends React.Component {
         style={{ backgroundImage: `url(${this.state.wallpaper})` }}
       >
         <header className="App-header">
-          <Box className="menu-bar">
-            <Menu updateFocused={this.updateFocused} />
-          </Box>
+          <Grid container className="menu-bar">
+            <Grid item xs={10}></Grid>
+            <Grid item xs={1}>
+              <CanvasButton
+                canvas={this.state.canvas}
+                canvasCalendarData={this.state.canvasCalendarData}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <Menu updateFocused={this.updateFocused} />
+            </Grid>
+          </Grid>
           <Box>
             <Grid container justifyContent="center">
               <Grid item xs={12}>

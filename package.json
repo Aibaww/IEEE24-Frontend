@@ -1,5 +1,5 @@
 {
-  "name": "Take CTRL",
+  "name": "Tabify",
   "version": "5.0.4",
   "description": "A one-stop chrome extension to organize your tabs, to-dos, and more!",
   "license": "MIT",
@@ -17,10 +17,14 @@
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.16",
     "@mui/material": "^5.15.16",
+    "@mui/x-date-pickers": "^7.3.2",
     "axios": "^1.6.8",
+    "dayjs": "^1.11.11",
+    "html-react-parser": "^5.1.10",
     "inspirational-quotes": "^2.0.1",
     "luxon": "^3.4.4",
     "react": "^18.2.0",
+    "react-big-calendar": "^1.12.1",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {

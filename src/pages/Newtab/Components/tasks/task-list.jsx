@@ -5,7 +5,7 @@ import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Checkbox from './checkbox';
-import '../Assets/tab-list.css';
+import '../../Assets/tab-list.css';
 
 export default function TaskList(props) {
   return (
