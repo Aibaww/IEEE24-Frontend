@@ -24,7 +24,7 @@ export default class App extends React.Component {
       quote: '',
       tabs: [],
       tasks: [],
-      name: 'Aiba',
+      name: '',
       dayPhase: '',
       canvas: false,
       canvasCalendarData: [],
@@ -50,6 +50,15 @@ export default class App extends React.Component {
         result.tasks.tasks !== undefined
       ) {
         this.setState({ tasks: result.tasks.tasks });
+      }
+    });
+    chrome.storage.local.get('name', (result) => {
+      if (
+        result !== undefined &&
+        result.name !== undefined &&
+        result.name.name !== undefined
+      ) {
+        this.setState({ name: result.name.name });
       }
     });
     this.timerID = setInterval(() => this.tick(), 1000);
@@ -211,6 +220,12 @@ export default class App extends React.Component {
     chrome.storage.local.set({ focused: this.state.focused });
   };
 
+  updateName = (name) => {
+    this.setState({ name: name });
+    chrome.storage.local.set({ name: { name: name } });
+    console.log(name);
+  };
+
   render() {
     return (
       <div
@@ -227,7 +242,11 @@ export default class App extends React.Component {
               />
             </Grid>
             <Grid item xs={1}>
-              <Menu updateFocused={this.updateFocused} />
+              <Menu
+                updateFocused={this.updateFocused}
+                updateName={this.updateName}
+                name={this.state.name}
+              />
             </Grid>
           </Grid>
           <Box>

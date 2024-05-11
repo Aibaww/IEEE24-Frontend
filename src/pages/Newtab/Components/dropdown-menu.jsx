@@ -5,8 +5,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
 
-export default function BasicMenu({ updateFocused }) {
+export default function BasicMenu(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -17,7 +18,11 @@ export default function BasicMenu({ updateFocused }) {
   };
 
   const handleToggle = () => {
-    updateFocused();
+    props.updateFocused();
+  };
+
+  const handleNameInput = (name) => {
+    props.updateName(name);
   };
 
   return (
@@ -54,6 +59,18 @@ export default function BasicMenu({ updateFocused }) {
             Focus Mode
             <Switch onClick={handleToggle} />
           </div>
+        </MenuItem>
+        <MenuItem>
+          <TextField
+            className="task-input"
+            size="small"
+            id="standard-helperText"
+            label="Enter your name"
+            onChange={(event) => {
+              handleNameInput(event.target.value);
+            }}
+            value={props.name}
+          ></TextField>
         </MenuItem>
       </Menu>
     </div>
