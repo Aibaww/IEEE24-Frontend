@@ -11,6 +11,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import Button from '@mui/material/Button';
 
 import '../Assets/settings-panel.css';
 
@@ -100,9 +101,7 @@ export default function SettingsPanel() {
           <List>
             <ListItem>
               <FormControl>
-                <InputLabel id="demo-simple-select-label">
-                  Timer Length
-                </InputLabel>
+                <InputLabel id="demo-simple-select-label"></InputLabel>
                 <Select
                   sx={{
                     background: '#36454F',
@@ -125,6 +124,20 @@ export default function SettingsPanel() {
           </List>
         </Grid>
       </Grid>
+      <Box
+        height="100px"
+        fontSize="16px"
+        padding="10px"
+        display="flex"
+        alignItems="center"
+      >
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: '#36454F', borderRadius: '10px' }}
+        >
+          Backup
+        </Button>
+      </Box>
     </Box>
   );
 }
