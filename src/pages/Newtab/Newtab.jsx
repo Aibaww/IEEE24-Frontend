@@ -3,22 +3,26 @@ import Greeting from './Components/greeting';
 import TabList from './Components/tab-list';
 import Task from './Components/tasks/task';
 import CanvasButton from './Components/canvas/canvas-button';
-
 import React from 'react';
 import { DateTime } from 'luxon';
 import axios from 'axios';
+import { createClient } from 'pexels';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
 import './Newtab.css';
 import './Newtab.scss';
+
 const Quote = require('inspirational-quotes');
+const client = createClient(process.env.REACT_APP_APIkey);
+const query = 'Nature';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       clock: DateTime.now(),
+      countdown: DateTime.now(),
       focused: false,
       wallpaper: '',
       quote: '',
@@ -62,19 +66,20 @@ export default class App extends React.Component {
       }
     });
     this.timerID = setInterval(() => this.tick(), 1000);
-    axios
-      .get(
-        'https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1',
-        { headers: { 'X-Requested-With': 'true' } }
-      )
-      .then((res) => {
-        if (res.status === 200) {
-          this.setState({ wallpaper: res.data[0].url });
-        }
-      })
-      .catch((err) => {
-        this.setState({ wallpaper: '' });
-      });
+    this.updateBackground();
+    // axios
+    //   .get(
+    //     'https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1',
+    //     { headers: { 'X-Requested-With': 'true' } }
+    //   )
+    //   .then((res) => {
+    //     if (res.status === 200) {
+    //       this.setState({ wallpaper: res.data[0].url });
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     this.setState({ wallpaper: '' });
+    //   });
     this.canvasAPICall();
   }
 
@@ -205,6 +210,34 @@ export default class App extends React.Component {
     }
   }
 
+  updateBackground = () => {
+    chrome.storage.local.get('background', (result) => {
+      const today = new Date();
+      if (result.date !== today.toDateString()) {
+        client.photos
+          .search({
+            query,
+            size: 'large',
+            orientation: 'landscape',
+            per_page: 1,
+          })
+          .then((res) => {
+            this.setState({ wallpaper: res.photos[0].src.landscape });
+            chrome.storage.local.set({
+              background: {
+                background: {
+                  wallpapaer: this.state.wallpaper,
+                },
+                date: today.toDateString(),
+              },
+            });
+          });
+      } else {
+        this.setState({ wallpaper: result.background.wallpaper });
+      }
+    });
+  };
+
   updateTabs = (tabs) => {
     this.setState({ tabs: tabs });
     chrome.storage.local.set({ tabs: { tabs: tabs } });
@@ -218,6 +251,26 @@ export default class App extends React.Component {
   updateFocused = () => {
     this.setState({ focused: !this.state.focused });
     chrome.storage.local.set({ focused: this.state.focused });
+    if (this.state.focused !== true) {
+      this.setState({
+        wallpaper:
+          'https://www.solidbackgrounds.com/images/2560x1600/2560x1600-charcoal-solid-color-background.jpg',
+      });
+    } else {
+      axios
+        .get(
+          'https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1',
+          { headers: { 'X-Requested-With': 'true' } }
+        )
+        .then((res) => {
+          if (res.status === 200) {
+            this.setState({ wallpaper: res.data[0].url });
+          }
+        })
+        .catch((err) => {
+          this.setState({ wallpaper: '' });
+        });
+    }
   };
 
   updateName = (name) => {
@@ -234,7 +287,16 @@ export default class App extends React.Component {
       >
         <header className="App-header">
           <Grid container className="menu-bar">
-            <Grid item xs={10}></Grid>
+            <Grid item xs={1}>
+              <a href="https://www.pexels.com">
+                <img
+                  src="https://images.pexels.com/lib/api/pexels-white.png"
+                  width="60%"
+                  alt=""
+                />
+              </a>
+            </Grid>
+            <Grid item xs={9}></Grid>
             <Grid item xs={1}>
               <CanvasButton
                 canvas={this.state.canvas}
@@ -262,6 +324,7 @@ export default class App extends React.Component {
                   name={this.state.name}
                   dayPhase={this.state.dayPhase}
                   quote={this.state.quote}
+                  countdown={this.state.countdown}
                 />
               </Grid>
             </Grid>
