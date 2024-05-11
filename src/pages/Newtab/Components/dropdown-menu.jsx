@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
+import  { useNavigate } from 'react-router-dom'
 import TextField from '@mui/material/TextField';
 
 export default function BasicMenu(props) {
@@ -24,6 +25,12 @@ export default function BasicMenu(props) {
   const handleNameInput = (name) => {
     props.updateName(name);
   };
+
+  const navigate = useNavigate();
+  
+  const handleSettingsClick = () => {
+    navigate('/settings');
+  }
 
   return (
     <div>
@@ -53,7 +60,7 @@ export default function BasicMenu(props) {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleClose}>General</MenuItem>
+        <MenuItem onClick={handleSettingsClick}>General</MenuItem>
         <MenuItem>
           <div>
             Focus Mode
@@ -73,6 +80,8 @@ export default function BasicMenu(props) {
           ></TextField>
         </MenuItem>
       </Menu>
+
+
     </div>
   );
 }

@@ -19,6 +19,7 @@ const client = createClient(process.env.REACT_APP_APIkey);
 const query = 'Nature';
 
 export default class App extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -287,6 +288,8 @@ export default class App extends React.Component {
 
   render() {
     return (
+
+     
       <div
         className="App"
         style={{ backgroundImage: this.state.backgroundCSS }}
@@ -347,6 +350,8 @@ export default class App extends React.Component {
             </Box>
           </Grid>
         </Grid>
+
+
       </div>
     );
   }
