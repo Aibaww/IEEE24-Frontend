@@ -23,11 +23,13 @@
     "html-react-parser": "^5.1.10",
     "inspirational-quotes": "^2.0.1",
     "luxon": "^3.4.4",
+    "pexels": "^1.4.0",
     "react": "^18.2.0",
     "react-big-calendar": "^1.12.1",
     "react-dom": "^18.2.0",
     "react-pro-sidebar": "^1.1.0",
-    "react-router-dom": "^6.23.1"
+    "react-router-dom": "^6.23.1",
+    "react-timezone-select": "^3.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
