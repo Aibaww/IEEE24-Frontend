@@ -41,7 +41,6 @@ export default function CalendarSelector(props) {
             <DateCalendar
               onChange={(newValue) => {
                 props.setDate(newValue);
-                console.log(newValue);
               }}
             />
           </LocalizationProvider>

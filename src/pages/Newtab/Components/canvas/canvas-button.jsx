@@ -100,7 +100,7 @@ export default function CanvasSelect(props) {
           <DialogTitle id="alert-dialog-title">{'Canvas Calendar'}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              Login to Canvas to use this feature.
+              Login to Canvas and refresh to use this feature.
             </DialogContentText>
           </DialogContent>
           <DialogActions>

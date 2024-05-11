@@ -14,6 +14,7 @@ export default function TaskList(props) {
         ? props.taskList.map((taskItem, i) => {
             return (
               <ListItem
+                sx={{ height: '50px' }}
                 key={i}
                 secondaryAction={
                   <div>
@@ -35,8 +36,13 @@ export default function TaskList(props) {
                 }
               >
                 <ListItemText
-                  primaryTypographyProps={{ fontSize: '14px' }}
-                  primary={taskItem}
+                  primaryTypographyProps={{ fontSize: '16px' }}
+                  primary={taskItem.text}
+                  secondaryTypographyProps={{
+                    fontSize: '12px',
+                    color: 'white',
+                  }}
+                  secondary={taskItem.date}
                 />
               </ListItem>
             );

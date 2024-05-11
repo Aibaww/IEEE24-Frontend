@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid';
 import '../../Assets/task-input.css';
 
 export default function TaskInput(props) {
-  const [input, setInput] = React.useState('');
+  const [text, setText] = React.useState('');
 
   const [date, setDate] = React.useState(null);
 
@@ -25,9 +25,9 @@ export default function TaskInput(props) {
           id="standard-helperText"
           label="To-do"
           onChange={(event) => {
-            setInput(event.target.value);
+            setText(event.target.value);
           }}
-          value={input}
+          value={text}
         ></TextField>
       </Grid>
       <Grid item xs={1}>
@@ -38,8 +38,10 @@ export default function TaskInput(props) {
           edge="end"
           color="inherit"
           onClick={() => {
-            props.handleTaskInput(input);
-            setInput('');
+            if (text !== undefined && date != null) {
+              props.handleTaskInput(text, date.$d);
+              setText('');
+            }
           }}
         >
           <CheckIcon />
