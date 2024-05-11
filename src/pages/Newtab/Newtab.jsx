@@ -215,11 +215,13 @@ export default class App extends React.Component {
 
   updateBackground = () => {
     chrome.storage.local.get('background', (result) => {
-      const storedDate = result.background.date;
-      const storedBackground = result.background.wallpaper;
       const today = new Date();
       const todayStr = today.toDateString();
-      if (storedDate !== todayStr || storedBackground === '') {
+      if (
+        result != {} ||
+        result.background.date !== todayStr ||
+        result.background.wallpaper === ''
+      ) {
         const splitStr = todayStr.split(' ');
         const num = Number(splitStr[2]);
         client.photos
