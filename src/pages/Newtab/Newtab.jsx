@@ -12,6 +12,7 @@ import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
 import './Newtab.css';
 import './Newtab.scss';
+import PexelLogo from './Components/pexel-logo';
 
 const Quote = require('inspirational-quotes');
 const client = createClient(process.env.REACT_APP_APIkey);
@@ -34,6 +35,8 @@ export default class App extends React.Component {
       canvasCalendarData: [],
       courses: [],
       canvasUserID: '',
+      backgroundCSS: '',
+      end: DateTime.now().plus({ seconds: 5 }),
     };
   }
 
@@ -212,8 +215,13 @@ export default class App extends React.Component {
 
   updateBackground = () => {
     chrome.storage.local.get('background', (result) => {
+      const storedDate = result.background.date;
+      const storedBackground = result.background.wallpaper;
       const today = new Date();
-      if (result.date !== today.toDateString()) {
+      const todayStr = today.toDateString();
+      if (storedDate !== todayStr || storedBackground === '') {
+        const splitStr = todayStr.split(' ');
+        const num = Number(splitStr[2]);
         client.photos
           .search({
             query,
@@ -222,18 +230,22 @@ export default class App extends React.Component {
             per_page: 1,
           })
           .then((res) => {
-            this.setState({ wallpaper: res.photos[0].src.landscape });
+            this.setState({
+              wallpaper: res.photos[num].src.landscape,
+              backgroundCSS: `url(${res.photos[num].src.landscape})`,
+            });
             chrome.storage.local.set({
               background: {
-                background: {
-                  wallpapaer: this.state.wallpaper,
-                },
-                date: today.toDateString(),
+                wallpaper: res.photos[num].src.landscape,
+                date: todayStr,
               },
             });
           });
       } else {
-        this.setState({ wallpaper: result.background.wallpaper });
+        this.setState({
+          wallpaper: result.background.wallpaper,
+          backgroundCSS: `url(${result.background.wallpaper})`,
+        });
       }
     });
   };
@@ -252,24 +264,14 @@ export default class App extends React.Component {
     this.setState({ focused: !this.state.focused });
     chrome.storage.local.set({ focused: this.state.focused });
     if (this.state.focused !== true) {
+      this.updateTimer();
       this.setState({
-        wallpaper:
-          'https://www.solidbackgrounds.com/images/2560x1600/2560x1600-charcoal-solid-color-background.jpg',
+        backgroundCSS: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${this.state.wallpaper})`,
       });
     } else {
-      axios
-        .get(
-          'https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1',
-          { headers: { 'X-Requested-With': 'true' } }
-        )
-        .then((res) => {
-          if (res.status === 200) {
-            this.setState({ wallpaper: res.data[0].url });
-          }
-        })
-        .catch((err) => {
-          this.setState({ wallpaper: '' });
-        });
+      this.setState({
+        backgroundCSS: `url(${this.state.wallpaper})`,
+      });
     }
   };
 
@@ -279,22 +281,20 @@ export default class App extends React.Component {
     console.log(name);
   };
 
+  updateTimer = () => {
+    this.setState({ end: DateTime.now().plus({ minutes: 30 }) });
+  };
+
   render() {
     return (
       <div
         className="App"
-        style={{ backgroundImage: `url(${this.state.wallpaper})` }}
+        style={{ backgroundImage: this.state.backgroundCSS }}
       >
         <header className="App-header">
           <Grid container className="menu-bar">
             <Grid item xs={1}>
-              <a href="https://www.pexels.com">
-                <img
-                  src="https://images.pexels.com/lib/api/pexels-white.png"
-                  width="60%"
-                  alt=""
-                />
-              </a>
+              <PexelLogo focused={this.state.focused} />
             </Grid>
             <Grid item xs={9}></Grid>
             <Grid item xs={1}>
@@ -324,7 +324,8 @@ export default class App extends React.Component {
                   name={this.state.name}
                   dayPhase={this.state.dayPhase}
                   quote={this.state.quote}
-                  countdown={this.state.countdown}
+                  clock={this.state.clock}
+                  end={this.state.end}
                 />
               </Grid>
             </Grid>
