@@ -15,6 +15,7 @@ import './Newtab.scss';
 const Quote = require('inspirational-quotes');
 
 export default class App extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -24,7 +25,7 @@ export default class App extends React.Component {
       quote: '',
       tabs: [],
       tasks: [],
-      name: 'Aiba',
+      name: 'Tayo',
       dayPhase: '',
       canvas: false,
       canvasCalendarData: [],
@@ -213,6 +214,8 @@ export default class App extends React.Component {
 
   render() {
     return (
+
+     
       <div
         className="App"
         style={{ backgroundImage: `url(${this.state.wallpaper})` }}
@@ -264,6 +267,8 @@ export default class App extends React.Component {
             </Box>
           </Grid>
         </Grid>
+
+
       </div>
     );
   }

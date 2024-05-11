@@ -5,6 +5,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
+import  { useNavigate } from 'react-router-dom'
+
 
 export default function BasicMenu({ updateFocused }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -19,6 +21,12 @@ export default function BasicMenu({ updateFocused }) {
   const handleToggle = () => {
     updateFocused();
   };
+
+  const navigate = useNavigate();
+  
+  const handleSettingsClick = () => {
+    navigate('/settings');
+  }
 
   return (
     <div>
@@ -48,7 +56,7 @@ export default function BasicMenu({ updateFocused }) {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleClose}>General</MenuItem>
+        <MenuItem onClick={handleSettingsClick}>General</MenuItem>
         <MenuItem>
           <div>
             Focus Mode
@@ -56,6 +64,8 @@ export default function BasicMenu({ updateFocused }) {
           </div>
         </MenuItem>
       </Menu>
+
+
     </div>
   );
 }
