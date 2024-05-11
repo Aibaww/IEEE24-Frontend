@@ -3,16 +3,20 @@ import Greeting from './Components/greeting';
 import TabList from './Components/tab-list';
 import Task from './Components/tasks/task';
 import CanvasButton from './Components/canvas/canvas-button';
-
 import React from 'react';
 import { DateTime } from 'luxon';
 import axios from 'axios';
+import { createClient } from 'pexels';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
 import './Newtab.css';
 import './Newtab.scss';
+import PexelLogo from './Components/pexel-logo';
+
 const Quote = require('inspirational-quotes');
+const client = createClient(process.env.REACT_APP_APIkey);
+const query = 'Nature';
 
 export default class App extends React.Component {
 
@@ -20,17 +24,20 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       clock: DateTime.now(),
+      countdown: DateTime.now(),
       focused: false,
       wallpaper: '',
       quote: '',
       tabs: [],
       tasks: [],
-      name: 'Tayo',
+      name: '',
       dayPhase: '',
       canvas: false,
       canvasCalendarData: [],
       courses: [],
       canvasUserID: '',
+      backgroundCSS: '',
+      end: DateTime.now().plus({ seconds: 5 }),
     };
   }
 
@@ -53,20 +60,30 @@ export default class App extends React.Component {
         this.setState({ tasks: result.tasks.tasks });
       }
     });
+    chrome.storage.local.get('name', (result) => {
+      if (
+        result !== undefined &&
+        result.name !== undefined &&
+        result.name.name !== undefined
+      ) {
+        this.setState({ name: result.name.name });
+      }
+    });
     this.timerID = setInterval(() => this.tick(), 1000);
-    axios
-      .get(
-        'https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1',
-        { headers: { 'X-Requested-With': 'true' } }
-      )
-      .then((res) => {
-        if (res.status === 200) {
-          this.setState({ wallpaper: res.data[0].url });
-        }
-      })
-      .catch((err) => {
-        this.setState({ wallpaper: '' });
-      });
+    this.updateBackground();
+    // axios
+    //   .get(
+    //     'https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1',
+    //     { headers: { 'X-Requested-With': 'true' } }
+    //   )
+    //   .then((res) => {
+    //     if (res.status === 200) {
+    //       this.setState({ wallpaper: res.data[0].url });
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     this.setState({ wallpaper: '' });
+    //   });
     this.canvasAPICall();
   }
 
@@ -197,6 +214,43 @@ export default class App extends React.Component {
     }
   }
 
+  updateBackground = () => {
+    chrome.storage.local.get('background', (result) => {
+      const storedDate = result.background.date;
+      const storedBackground = result.background.wallpaper;
+      const today = new Date();
+      const todayStr = today.toDateString();
+      if (storedDate !== todayStr || storedBackground === '') {
+        const splitStr = todayStr.split(' ');
+        const num = Number(splitStr[2]);
+        client.photos
+          .search({
+            query,
+            size: 'large',
+            orientation: 'landscape',
+            per_page: 1,
+          })
+          .then((res) => {
+            this.setState({
+              wallpaper: res.photos[num].src.landscape,
+              backgroundCSS: `url(${res.photos[num].src.landscape})`,
+            });
+            chrome.storage.local.set({
+              background: {
+                wallpaper: res.photos[num].src.landscape,
+                date: todayStr,
+              },
+            });
+          });
+      } else {
+        this.setState({
+          wallpaper: result.background.wallpaper,
+          backgroundCSS: `url(${result.background.wallpaper})`,
+        });
+      }
+    });
+  };
+
   updateTabs = (tabs) => {
     this.setState({ tabs: tabs });
     chrome.storage.local.set({ tabs: { tabs: tabs } });
@@ -210,6 +264,26 @@ export default class App extends React.Component {
   updateFocused = () => {
     this.setState({ focused: !this.state.focused });
     chrome.storage.local.set({ focused: this.state.focused });
+    if (this.state.focused !== true) {
+      this.updateTimer();
+      this.setState({
+        backgroundCSS: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${this.state.wallpaper})`,
+      });
+    } else {
+      this.setState({
+        backgroundCSS: `url(${this.state.wallpaper})`,
+      });
+    }
+  };
+
+  updateName = (name) => {
+    this.setState({ name: name });
+    chrome.storage.local.set({ name: { name: name } });
+    console.log(name);
+  };
+
+  updateTimer = () => {
+    this.setState({ end: DateTime.now().plus({ minutes: 30 }) });
   };
 
   render() {
@@ -218,11 +292,14 @@ export default class App extends React.Component {
      
       <div
         className="App"
-        style={{ backgroundImage: `url(${this.state.wallpaper})` }}
+        style={{ backgroundImage: this.state.backgroundCSS }}
       >
         <header className="App-header">
           <Grid container className="menu-bar">
-            <Grid item xs={10}></Grid>
+            <Grid item xs={1}>
+              <PexelLogo focused={this.state.focused} />
+            </Grid>
+            <Grid item xs={9}></Grid>
             <Grid item xs={1}>
               <CanvasButton
                 canvas={this.state.canvas}
@@ -230,7 +307,11 @@ export default class App extends React.Component {
               />
             </Grid>
             <Grid item xs={1}>
-              <Menu updateFocused={this.updateFocused} />
+              <Menu
+                updateFocused={this.updateFocused}
+                updateName={this.updateName}
+                name={this.state.name}
+              />
             </Grid>
           </Grid>
           <Box>
@@ -246,6 +327,8 @@ export default class App extends React.Component {
                   name={this.state.name}
                   dayPhase={this.state.dayPhase}
                   quote={this.state.quote}
+                  clock={this.state.clock}
+                  end={this.state.end}
                 />
               </Grid>
             </Grid>
