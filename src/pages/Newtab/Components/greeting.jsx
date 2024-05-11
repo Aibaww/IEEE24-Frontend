@@ -11,9 +11,13 @@ export default function Greeting(props) {
       ) : (
         <div>
           <Grid item xs={12}>
-            <Box className="user-welcome">
-              Good {props.dayPhase}, {props.name}.
-            </Box>
+            {props.name === '' ? (
+              <Box className="user-welcome">Good {props.dayPhase}.</Box>
+            ) : (
+              <Box className="user-welcome">
+                Good {props.dayPhase}, {props.name}.
+              </Box>
+            )}
           </Grid>
           <Grid item xs={12}>
             <Box className="quote">{props.quote}</Box>
